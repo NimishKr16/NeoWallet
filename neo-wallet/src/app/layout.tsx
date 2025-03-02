@@ -2,6 +2,7 @@
 import { AuthProvider } from "../context/AuthContext";
 import "./globals.css";
 import Navbar from "../components/Navbar";
+import Footer from "@/components/Footer";
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
 //   subsets: ["latin"],
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           
           {children}
           
+          <Footer />
           </AuthProvider>
       </body>
     </html>
