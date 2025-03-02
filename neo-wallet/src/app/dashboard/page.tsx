@@ -9,12 +9,14 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { TextField } from "@mui/material";
 import { db } from "../../lib/firebaseConfig"; // Firebase Client Instance
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { Loader2 } from "lucide-react"; // Import spinner icon
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const [amount, setAmount] = useState("");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
   const [balance, setBalance] = useState(0);
   const [transactions, setTransactions] = useState<
     { type: string; amount: number }[]
@@ -27,6 +29,7 @@ export default function DashboardPage() {
     }
 
     const fetchUserData = async () => {
+      setLoadingData(true); 
       try {
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
@@ -41,6 +44,9 @@ export default function DashboardPage() {
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
+      }
+      finally {
+        setLoadingData(false); // Stop loading after fetching
       }
     };
 
@@ -77,7 +83,14 @@ export default function DashboardPage() {
     <ProtectedRoute>
       <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center p-10">
         <h1 className="text-3xl font-bold mb-6">NeoWallet Dashboard</h1>
-
+        {loadingData ? (
+          <div className="flex flex-col items-center justify-center h-48">
+            <Loader2 className="w-12 h-12 text-gray-400 animate-spin" />
+            <p className="text-gray-400 mt-2">Loading data...</p>
+          </div>
+        ) : (
+    <>
+    
         <Card className="p-6 bg-gradient-to-br from-gray-900 to-gray-800 text-white shadow-xl rounded-xl w-full md:w-80">
   <CardHeader className="flex flex-col items-center">
     <CardTitle className="text-lg font-semibold text-gray-300 uppercase tracking-wide">
@@ -141,6 +154,8 @@ export default function DashboardPage() {
         >
           {loading ? "Processing..." : `Add $${amount || "Money"}`}
         </Button>
+        </>
+        )}
       </div>
     </ProtectedRoute>
   );
