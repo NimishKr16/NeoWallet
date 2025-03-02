@@ -1,13 +1,13 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
 import { db } from "../../lib/firebaseConfig"; // Firebase Client Instance
-import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
+import { doc, getDoc, updateDoc, arrayUnion, increment } from "firebase/firestore";
 
-export default function SuccessPage() {
+function SuccessPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
@@ -26,15 +26,12 @@ export default function SuccessPage() {
           return;
         }
 
-        const userData = userDoc.data();
-        const newBalance = (userData.balance || 0) + 50; // Change this to dynamic amount
-
-        // Update balance & add transaction
+        // ✅ Use `increment(50)` instead of manually adding to balance
         await updateDoc(userRef, {
-          balance: newBalance,
+          balance: increment(50), // ✅ Dynamic balance update
           transactions: arrayUnion({
             id: sessionId,
-            amount: 50, // Change this to dynamic amount
+            amount: 50,
             type: "Top-up",
             date: new Date().toISOString(),
           }),
@@ -50,7 +47,6 @@ export default function SuccessPage() {
   }, [sessionId, userId]);
 
   return (
-    <Suspense fallback={<p>Loading...</p>}>
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-950 text-white">
       <div className="bg-gray-900 p-8 rounded-lg shadow-lg text-center">
         <CheckCircle className="text-green-500 w-16 h-16 mx-auto animate-bounce" />
@@ -62,6 +58,14 @@ export default function SuccessPage() {
         </Button>
       </div>
     </div>
+  );
+}
+
+// ✅ Wrap inside Suspense to fix `useSearchParams` issue
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <SuccessPageContent />
     </Suspense>
   );
 }

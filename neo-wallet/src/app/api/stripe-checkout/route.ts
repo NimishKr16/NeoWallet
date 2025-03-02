@@ -1,19 +1,20 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import admin from "firebase-admin";
-import { initializeApp, getApps, cert } from "firebase-admin/app";
 import { getFirestore, FieldValue} from "firebase-admin/firestore";
-import serviceAccount from "@/lib/firebase-admin.json";
 // import { db } from "../../../lib/firebaseConfig";
 // import { doc, getDoc, updateDoc, arrayUnion, increment } from "firebase/firestore";
 
-
+const firebaseAdminConfig = JSON.parse(
+    Buffer.from(process.env.FIREBASE_ADMIN_CREDENTIALS ?? "", "base64").toString()
+  );
 // 🔹 Initialize Firebase Admin SDK (only once)
-if (!getApps().length) {
-    initializeApp({
-        credential: cert(serviceAccount as admin.ServiceAccount),
+if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.cert(firebaseAdminConfig),
     });
   }
+  
 const db = getFirestore(); // Get Firestore instance
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
@@ -45,8 +46,8 @@ export async function POST(req: Request) {
         },
       ],
       mode: "payment",
-      success_url: `http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}&user_id=${userId}`,
-      cancel_url: `http://localhost:3000/dashboard`,
+      success_url: `https://neo-wallet-vert.vercel.app/success?session_id={CHECKOUT_SESSION_ID}&user_id=${userId}`,
+      cancel_url: `https://neo-wallet-vert.vercel.app/dashboard`,
     });
 
     // Update balance and transactions in Firestore
