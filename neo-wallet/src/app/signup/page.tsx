@@ -1,6 +1,6 @@
 "use client";
 import { useAuth } from "../../context/AuthContext";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -9,7 +9,7 @@ import { FaApple, FaMicrosoft } from "react-icons/fa";
 
 export default function SignupPage() {
   const { loginWithGoogle } = useAuth()!;
-  const router = useRouter();
+  // const router = useRouter();
 
   return (
     <div className="flex items-center justify-center h-screen px-4">
